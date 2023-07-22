@@ -1,20 +1,22 @@
 package ws
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
+	l "github.com/dehwyy/makoto-go-websocket.git/logger"
 	"github.com/gorilla/websocket"
 )
 
 const (
 	// time for write
-	writeWaitTime = time.Second * 10
+	writeWaitTime = time.Second * 5
 	// time of waiting either message or period
-	messageWaitTime = time.Second * 60
+	messageWaitTime = time.Second * 10
 	// send ping with period
-	messagePingPeriod = messageWaitTime * 90 / 100
+	messagePingPeriod = messageWaitTime * 9 / 10
 )
 
 var upgrader = websocket.Upgrader{
@@ -75,9 +77,9 @@ func (c *Client) write() {
 			}
 
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWaitTime))
+
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				log.Fatalf("Cannot ping: %v\n", err)
+				log.Fatalf("Failed to ping: %v", err)
 			}
 		}
 	}
@@ -90,11 +92,11 @@ func (c *Client) read() {
 	}()
 
 	c.conn.SetReadLimit(512)
-	c.conn.SetReadDeadline(time.Now().Add(messagePingPeriod))
+	c.conn.SetReadDeadline(time.Now().Add(messageWaitTime))
 
-	// on messageType == pink
+	// on messageType == ping
 	c.conn.SetPongHandler(func(string) error {
-		c.conn.SetReadDeadline(time.Now().Add(messagePingPeriod))
+		c.conn.SetReadDeadline(time.Now().Add(messageWaitTime))
 		return nil
 	})
 
@@ -102,11 +104,16 @@ func (c *Client) read() {
 		_, message, err := c.conn.ReadMessage()
 
 		//
-		if err != nil && websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-			log.Printf("error: %v", err)
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("Unexpected error: %v", err)
+			}
+
+			// If connection was aborted (for example: on browser close), then it would be printed here as an error
+			l.Log(fmt.Sprintf("Error: %v, %v", err, c))
 			break
 		}
-		// message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		// message = bytes.TrimSpace(bytes.Replace(message, newline, spp-ace, -1))
 		c.hub.broadcast <- message
 	}
 }

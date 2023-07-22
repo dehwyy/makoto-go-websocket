@@ -1,10 +1,14 @@
 package ws
 
 import (
-	"log"
+	"fmt"
+
+	l "github.com/dehwyy/makoto-go-websocket.git/logger"
 )
 
 type Hub struct {
+	// UID
+	UID string
 	// channels for:
 	// - registering user
 	// - unregistering user
@@ -16,8 +20,9 @@ type Hub struct {
 	clients map[*Client]bool
 }
 
-func NewHub() *Hub {
+func NewHub(uid string) *Hub {
 	return &Hub{
+		UID:       uid,
 		reg:       make(chan *Client),
 		unreg:     make(chan *Client),
 		broadcast: make(chan []byte),
@@ -31,7 +36,7 @@ func (h *Hub) Run() {
 
 		// when someone connecting to the Hub
 		case client := <-h.reg:
-			log.Default().Println("New client connected", client)
+			l.Log(fmt.Sprintf("New client connected: %v on hub '%s'", client.conn.RemoteAddr().String(), h.UID))
 			h.clients[client] = true
 
 			// on disconnect
