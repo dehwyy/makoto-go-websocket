@@ -3,7 +3,7 @@ package ws
 import (
 	"fmt"
 
-	l "github.com/dehwyy/makoto-go-websocket.git/logger"
+	l "github.com/dehwyy/makoto-go-websocket/logger"
 )
 
 type Hub struct {

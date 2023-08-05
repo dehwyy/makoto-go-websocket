@@ -5,11 +5,14 @@ import (
 	"log"
 	"net/http"
 
-	l "github.com/dehwyy/makoto-go-websocket.git/logger"
-	"github.com/dehwyy/makoto-go-websocket.git/ws"
+	"github.com/dehwyy/makoto-go-websocket/config"
+	l "github.com/dehwyy/makoto-go-websocket/logger"
+	"github.com/dehwyy/makoto-go-websocket/ws"
 )
 
 func main() {
+	config := config.New()
+
 	// creating new instance of Hub and running it in the goroutine
 	hubs := make([]*ws.Hub, 0)
 
@@ -38,7 +41,7 @@ func main() {
 		ws.ServeWS(hub, w, r)
 
 	})
-	err := http.ListenAndServe(":7070", nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", config.Env.Port), nil)
 	if err != nil {
 		log.Fatalf("Error occured when starting server op port %d: %v", 6969, err)
 	}

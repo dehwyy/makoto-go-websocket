@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	l "github.com/dehwyy/makoto-go-websocket.git/logger"
+	l "github.com/dehwyy/makoto-go-websocket/logger"
 	"github.com/gorilla/websocket"
 )
 

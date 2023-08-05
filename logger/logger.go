@@ -1,8 +1,8 @@
 package logger
 
-import logg "log"
+import "log"
 
 func Log(s string) {
-	l := logg.Default()
+	l := log.Default()
 	l.Println(s)
 }
