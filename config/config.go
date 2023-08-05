@@ -16,7 +16,7 @@ type Config struct {
 }
 
 func init() {
-	const pathToEnv = "../.env"
+	const pathToEnv = "./.env"
 
 	if err := godotenv.Load(pathToEnv); err != nil {
 		log.Fatalf("Cannot loading .env file at path: %s\n", pathToEnv)
